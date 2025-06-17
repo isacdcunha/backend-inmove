@@ -9,6 +9,29 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+OBJETIVO_CHOICES = [
+    ('hipertrofia', 'Hipertrofia'),
+    ('emagrecimento', 'Emagrecimento'),
+    ('definicao', 'Definição'),
+]
+
+NIVEL_CHOICES = [
+    ('sedentário','Sedentário'),
+    ('leve', 'Leve'),
+    ('moderado', 'Moderado'),
+    ('intenso', 'Intenso'),
+    ('atleta', 'Atleta')
+]
+
+ALIMENTACAO_CHOICES = [
+    ('vegano','Vegano'),
+    ('vegetariano', 'Vegetariano'),
+    ('sem gluten', 'Sem Gluten'),
+    ('sem lactose', 'Sem Lactose'),
+    ('sem restrições', 'Sem Restrições')
+]
 
 
 class UserManager(BaseUserManager):
@@ -39,9 +62,17 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     """User model in the system."""
-
-    passage_id = models.CharField(max_length=255, unique=True, verbose_name=_('passage_id'), help_text=_('Passage ID'))
+    
+    nome = models.CharField(max_length=255, blank=True)
     email = models.EmailField(max_length=255, unique=True, verbose_name=_('email'), help_text=_('Email'))
+    senha = models.CharField(max_length=128, blank=True)
+    idade = models.PositiveIntegerField(validators=[MinValueValidator(10), MaxValueValidator(120)], default=0)
+    peso = models.FloatField(validators=[MinValueValidator(10), MaxValueValidator(500)], default=0)
+    altura = models.FloatField(validators=[MinValueValidator(10), MaxValueValidator(120)], default=0)
+    objetivo = models.CharField(max_length=20, choices=OBJETIVO_CHOICES, default='definição')
+    nivelatv = models.CharField(max_length=20, choices=NIVEL_CHOICES, default='leve')
+    alimentacao = models.CharField(max_length=20,choices=ALIMENTACAO_CHOICES, default='sem restrições')
+    passage_id = models.CharField(max_length=255, unique=True,      verbose_name=_('passage_id'), help_text=_('Passage ID'))
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('name'), help_text=_('Username'))
     is_active = models.BooleanField(
         default=True, verbose_name=_('Usuário está ativo'), help_text=_('Indica que este usuário está ativo.')
